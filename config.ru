@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/config/boot.rb'
+require './app.rb'
 
-run Rack::URLMap.new({ "/" => Example::Web })
+run MyApp
 
