@@ -9,8 +9,9 @@ set :ssh_options,     { :forward_agent => true }
 set :rails_env,       "production"
 set :deploy_to,       "/var/www/sinatra_template"
 set :normalize_asset_timestamps, false
+set :scm_passphrase, "" 
 
-set :user,            "user"
+set :user,            "vagrant"
 set :group,           "staff"
 set :use_sudo,        true
 
@@ -35,6 +36,7 @@ default_environment["RAILS_ENV"] = 'production'
 #default_environment["RUBY_VERSION"] = "ruby-1.9.2-p290"
 
 default_run_options[:shell] = 'bash'
+default_run_options[:pty] = true
 
 namespace :deploy do
   desc "Deploy your application"
@@ -48,7 +50,7 @@ namespace :deploy do
     dirs = [deploy_to, shared_path]
     dirs += shared_children.map { |d| File.join(shared_path, d) }
     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
-    run "git clone #{repository} #{current_path}"
+    run "#{try_sudo} git clone #{repository} #{current_path}"
   end
 
   task :cold do
@@ -64,7 +66,7 @@ namespace :deploy do
 
   desc "Update the deployed code."
   task :update_code, :except => { :no_release => true } do
-    run "cd #{current_path}; git fetch origin; git reset --hard #{branch}"
+    run "cd #{current_path}; #{try_sudo} git fetch origin; #{try_sudo} git reset --hard #{branch}"
     finalize_update
   end
 
@@ -89,7 +91,7 @@ namespace :deploy do
       ln -s #{shared_path}/log #{latest_release}/log &&
       ln -s #{shared_path}/system #{latest_release}/public/system &&
       ln -s #{shared_path}/pids #{latest_release}/tmp/pids &&
-      ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
+      #ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
     CMD
 
     if fetch(:normalize_asset_timestamps, true)
@@ -106,7 +108,7 @@ namespace :deploy do
 
   desc "Start unicorn"
   task :start, :except => { :no_release => true } do
-    run "cd #{current_path} ; bundle exec unicorn -c config/unicorn.rb -D"
+    run "cd #{current_path} ; #{try_sudo} bundle exec unicorn -c config/unicorn.rb -D"
   end
 
   desc "Stop unicorn"
@@ -123,7 +125,7 @@ namespace :deploy do
 
     desc "Rewrite reflog so HEAD@{1} will continue to point to at the next previous release."
     task :cleanup, :except => { :no_release => true } do
-      run "cd #{current_path}; git reflog delete --rewrite HEAD@{1}; git reflog delete --rewrite HEAD@{1}"
+      run "cd #{current_path}; #{try_sudo} git reflog delete --rewrite HEAD@{1}; #{try_sudo} git reflog delete --rewrite HEAD@{1}"
     end
 
     desc "Rolls back to the previously deployed version."
