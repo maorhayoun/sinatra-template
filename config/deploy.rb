@@ -67,6 +67,7 @@ namespace :deploy do
   desc "Update the deployed code."
   task :update_code, :except => { :no_release => true } do
     run "cd #{current_path}; #{try_sudo} git fetch origin; #{try_sudo} git reset --hard #{branch}"
+    sudo "chown -R #{user}:#{user} #{deploy_to}"    
     finalize_update
   end
 
@@ -90,7 +91,7 @@ namespace :deploy do
       mkdir -p #{latest_release}/tmp &&
       ln -s #{shared_path}/log #{latest_release}/log &&
       ln -s #{shared_path}/system #{latest_release}/public/system &&
-      ln -s #{shared_path}/pids #{latest_release}/tmp/pids &&
+      ln -s #{shared_path}/pids #{latest_release}/tmp/pids #&&
       #ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
     CMD
 
