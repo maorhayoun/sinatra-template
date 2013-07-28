@@ -3,12 +3,12 @@ app_path          = "/var/www/sinatra_template"
 environment 	  = ENV['RACK_ENV'] || 'development'
 isDevelopment     = environment == 'development'
 
-working_directory "#{app_path}"
-pid               "#{app_path}/tmp/pids/unicorn.pid"
+working_directory "#{app_path}/current"
+pid               "#{app_path}/shared/tmp/pids/unicorn.pid"
 
 unless isDevelopment
-stderr_path       "#{app_path}/log/unicorn.log"
-stdout_path       "#{app_path}/log/unicorn.log"
+stderr_path       "#{app_path}/shared/log/unicorn.log"
+stdout_path       "#{app_path}/shared/log/unicorn.log"
 end
 
 listen            "unix:/tmp/unicorn.sock" , :backlog => 512

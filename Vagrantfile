@@ -22,7 +22,7 @@ Vagrant::Config.run do |config|
   # via the IP. Host-only networks can talk to the host machine as well as
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
-   config.vm.network :hostonly, "192.168.33.10"
+   config.vm.network :hostonly, "192.168.33.11"
 
   # Assign this VM to a bridged network, allowing you to connect directly to a
   # network using the host's network device. This makes the VM appear as another
@@ -74,6 +74,7 @@ Vagrant::Config.run do |config|
   #   chef.add_role "web"
   #
       chef.add_recipe "build-essential"      
+      chef.add_recipe "git"
       chef.add_recipe "apt" 
       chef.add_recipe "ohai" 
       chef.add_recipe "yum" 

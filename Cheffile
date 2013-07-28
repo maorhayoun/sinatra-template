@@ -1,7 +1,7 @@
 site "http://community.opscode.com/api/v1"
 
 cookbook 'build-essential'
-
+cookbook 'git'
 cookbook 'ruby_build',
   :git => 'git://github.com/fnichol/chef-ruby_build.git', :ref => 'v0.6.2'
 cookbook 'rbenv',

@@ -2,7 +2,7 @@
 require "bundler/capistrano"
 
 set :scm,             :git
-set :repository,      "git@github.com:maorhayoun/sinatra-template.git"
+set :repository,      "https://github.com/maorhayoun/sinatra-template.git"
 set :branch,          "origin/master"
 set :migrate_target,  :current
 set :ssh_options,     { :forward_agent => true }
@@ -10,14 +10,16 @@ set :rails_env,       "production"
 set :deploy_to,       "/var/www/sinatra_template"
 set :normalize_asset_timestamps, false
 set :scm_passphrase, "" 
+set :deploy_via, :remote_cache
+set :scm_user, "maorhayoun"
 
 set :user,            "vagrant"
 set :group,           "staff"
 set :use_sudo,        true
 
-role :web,    "192.168.33.10"
-role :app,    "192.168.33.10"
-role :db,     "192.168.33.10", :primary => true
+role :web,    "192.168.33.11"
+role :app,    "192.168.33.11"
+role :db,     "192.168.33.11", :primary => true
 
 set(:latest_release)  { fetch(:current_path) }
 set(:release_path)    { fetch(:current_path) }
@@ -49,7 +51,7 @@ namespace :deploy do
   task :setup, :except => { :no_release => true } do
     dirs = [deploy_to, shared_path]
     dirs += shared_children.map { |d| File.join(shared_path, d) }
-    run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
+    run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod +w #{dirs.join(' ')}"
     run "#{try_sudo} git clone #{repository} #{current_path}"
   end
 
