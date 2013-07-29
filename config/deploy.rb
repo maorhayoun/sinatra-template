@@ -1,6 +1,5 @@
 # config/deploy.rb
 require "bundler/capistrano"
-#require "rvm-capistrano"
 
 set :scm_user,        "maorhayoun"
 set :scm_passphrase,  ""
@@ -25,6 +24,16 @@ role :web,    "#{server_ip}"
 role :app,    "#{server_ip}"
 role :db,     "#{server_ip}", :primary => true
 
+set :default_environment, {
+  'PATH' => "/usr/local/rvm/gems/ruby-1.9.3-p327/bin:/usr/local/rvm/gems/ruby-1.9.3-p327@global/bin:/usr/local/rvm/rubies/ruby-1.9.3-p327/bin:/usr/local/rvm/bin:$PATH",
+  'RUBY_VERSION' => 'ruby-1.9.3-p327',
+  'GEM_HOME'     => '/usr/local/rvm/gems/ruby-1.9.3-p327',
+  'GEM_PATH'     => '/usr/local/rvm/gems/ruby-1.9.3-p327:/usr/local/rvm/gems/ruby-1.9.3-p327@global',
+  'BUNDLE_PATH'  => '/usr/local/rvm/gems/ruby-1.9.3-p327@global/bin/bundle'
+}
+
+after "deploy", "rvm:trust_rvmrc"
+
 set(:latest_release)  { fetch(:current_path) }
 set(:release_path)    { fetch(:current_path) }
 set(:current_release) { fetch(:current_path) }
@@ -35,12 +44,6 @@ set(:previous_revision) { capture("cd #{current_path}; git rev-parse --short HEA
 
 default_environment["RAILS_ENV"] = 'production'
 
-# Use our ruby-1.9.2-p290@my_site gemset
-#default_environment["PATH"]         = "--"
-#default_environment["GEM_HOME"]     = "--"
-#default_environment["GEM_PATH"]     = "--"
-#default_environment["RUBY_VERSION"] = "ruby-1.9.2-p290"
-
 #default_run_options[:shell] = 'bash'
 default_run_options[:pty] = true
 
@@ -48,7 +51,7 @@ namespace :deploy do
   desc "Deploy your application"
   task :default do
     update
-    restart
+    start
   end
 
   desc "Setup your git-based deployment app"
@@ -98,10 +101,7 @@ namespace :deploy do
       ln -s #{shared_path}/log #{latest_release}/log &&
       ln -s #{shared_path}/system #{latest_release}/public/system &&
       ln -s #{shared_path}/pids #{latest_release}/tmp/pids &&
-      #ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
-      #{try_sudo} ln -nf #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}# &&
-#      #{try_sudo} ln -nf 
-      #TODO: ln to unicorn init
+      #{try_sudo} ln -nf #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}
     CMD
 
     if fetch(:normalize_asset_timestamps, true)
@@ -113,17 +113,17 @@ namespace :deploy do
 
   desc "Zero-downtime restart of Unicorn"
   task :restart, :except => { :no_release => true } do
-    run "kill -s USR2 `cat /tmp/unicorn.pid`"
+    run "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
   end
 
   desc "Start unicorn"
   task :start, :except => { :no_release => true } do
-    run "cd #{current_path} ; #{try_sudo} bundle exec unicorn -c config/unicorn.rb -D"
+    run "cd #{current_path} ; bundle exec unicorn -c config/unicorn.rb -D"
   end
 
   desc "Stop unicorn"
   task :stop, :except => { :no_release => true } do
-    run "kill -s QUIT `cat /tmp/unicorn.pid`"
+    run "#{try_sudo} kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
   end
 
   namespace :rollback do
@@ -144,7 +144,15 @@ namespace :deploy do
       rollback.cleanup
     end
   end
+
 end
+
+namespace :rvm do
+  task :trust_rvmrc do
+    run "rvm rvmrc trust #{release_path}"
+  end
+end
+
 
 def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
