@@ -32,8 +32,6 @@ set :default_environment, {
   'BUNDLE_PATH'  => '/usr/local/rvm/gems/ruby-1.9.3-p327@global/bin/bundle'
 }
 
-after "deploy", "rvm:trust_rvmrc"
-
 set(:latest_release)  { fetch(:current_path) }
 set(:release_path)    { fetch(:current_path) }
 set(:current_release) { fetch(:current_path) }
@@ -51,7 +49,8 @@ namespace :deploy do
   desc "Deploy your application"
   task :default do
     update
-    start
+    restart
+    restart_nginx
   end
 
   desc "Setup your git-based deployment app"
@@ -113,7 +112,8 @@ namespace :deploy do
 
   desc "Zero-downtime restart of Unicorn"
   task :restart, :except => { :no_release => true } do
-    run "kill -s USR2 `cat #{shared_path}/tmp/pids/unicorn.pid`"
+    stop
+    start
   end
 
   desc "Start unicorn"
@@ -121,9 +121,16 @@ namespace :deploy do
     run "cd #{current_path} ; bundle exec unicorn -c config/unicorn.rb -D"
   end
 
+  desc "Restart Nginx"
+  task :restart_nginx, :except => { :no_release => true } do
+    run "#{try_sudo} service nginx restart"
+  end
+
   desc "Stop unicorn"
   task :stop, :except => { :no_release => true } do
-    run "#{try_sudo} kill -s QUIT `cat #{shared_path}/tmp/pids/unicorn.pid`"
+    if remote_file_exists?("#{shared_path}/tmp/pids/unicorn.pid")    
+       run "#{try_sudo} kill `cat #{shared_path}/tmp/pids/unicorn.pid`"
+    end
   end
 
   namespace :rollback do
@@ -147,13 +154,11 @@ namespace :deploy do
 
 end
 
-namespace :rvm do
-  task :trust_rvmrc do
-    run "rvm rvmrc trust #{release_path}"
-  end
-end
-
 
 def run_rake(cmd)
   run "cd #{current_path}; #{rake} #{cmd}"
+end
+
+def remote_file_exists?(full_path)
+  'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
 end
