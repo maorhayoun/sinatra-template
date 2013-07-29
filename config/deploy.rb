@@ -21,9 +21,9 @@ set :user,            "vagrant"
 set :group,           "staff"
 set :use_sudo,        true
 
-role :web,    :server_ip
-role :app,    :server_ip
-role :db,     :server_ip, :primary => true
+role :web,    "#{server_ip}"
+role :app,    "#{server_ip}"
+role :db,     "#{server_ip}", :primary => true
 
 set(:latest_release)  { fetch(:current_path) }
 set(:release_path)    { fetch(:current_path) }
@@ -99,8 +99,8 @@ namespace :deploy do
       ln -s #{shared_path}/system #{latest_release}/public/system &&
       ln -s #{shared_path}/pids #{latest_release}/tmp/pids &&
       #ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
-      #{try_sudo} ln -nf #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application} &&
-      #{try_sudo} ln -nf 
+      #{try_sudo} ln -nf #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}# &&
+#      #{try_sudo} ln -nf 
       #TODO: ln to unicorn init
     CMD
 
