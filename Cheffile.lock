@@ -2,6 +2,7 @@ SITE
   remote: http://community.opscode.com/api/v1
   specs:
     build-essential (1.4.0)
+    chef_gem (0.1.0)
     chef_handler (1.1.4)
     dmg (1.1.0)
     git (2.5.2)
@@ -26,18 +27,12 @@ SITE
     yum (2.3.0)
 
 GIT
-  remote: git://github.com/fnichol/chef-ruby_build.git
-  ref: v0.6.2
-  sha: 2e45dc11b4f98175cc1f70ad254e22aab213cfb4
+  remote: git://github.com/fnichol/chef-rvm.git
+  ref: master
+  sha: 7038fb8c518d0d7785767de215b1ae463f237973
   specs:
-    ruby_build (0.6.2)
-
-GIT
-  remote: https://github.com/fnichol/chef-rbenv
-  ref: 7d9b66f20d6edb786720b22919fd53e698fce12b
-  sha: 7d9b66f20d6edb786720b22919fd53e698fce12b
-  specs:
-    rbenv (0.7.1)
+    rvm (0.9.1)
+      chef_gem (>= 0.0.0)
 
 GIT
   remote: https://github.com/opscode-cookbooks/apt
@@ -51,8 +46,7 @@ DEPENDENCIES
   build-essential (>= 0)
   git (>= 0)
   nginx (>= 0)
-  rbenv (>= 0)
-  ruby_build (>= 0)
   runit (>= 0)
+  rvm (>= 0)
   unicorn (>= 0)
 

@@ -1,25 +1,29 @@
 # config/deploy.rb
 require "bundler/capistrano"
+#require "rvm-capistrano"
+
+set :scm_user,        "maorhayoun"
+set :scm_passphrase,  ""
+set :server_ip,       "192.168.33.11"
+set :repository,      "https://github.com/maorhayoun/sinatra-template.git"
+set :rails_env,       "production"
+set :application,     "sinatra_template"
+set :deploy_to,       "/var/www/#{application}"
 
 set :scm,             :git
-set :repository,      "https://github.com/maorhayoun/sinatra-template.git"
 set :branch,          "origin/master"
 set :migrate_target,  :current
 set :ssh_options,     { :forward_agent => true }
-set :rails_env,       "production"
-set :deploy_to,       "/var/www/sinatra_template"
 set :normalize_asset_timestamps, false
-set :scm_passphrase, "" 
-set :deploy_via, :remote_cache
-set :scm_user, "maorhayoun"
+set :deploy_via,      :remote_cache
 
 set :user,            "vagrant"
 set :group,           "staff"
 set :use_sudo,        true
 
-role :web,    "192.168.33.11"
-role :app,    "192.168.33.11"
-role :db,     "192.168.33.11", :primary => true
+role :web,    :server_ip
+role :app,    :server_ip
+role :db,     :server_ip, :primary => true
 
 set(:latest_release)  { fetch(:current_path) }
 set(:release_path)    { fetch(:current_path) }
@@ -37,7 +41,7 @@ default_environment["RAILS_ENV"] = 'production'
 #default_environment["GEM_PATH"]     = "--"
 #default_environment["RUBY_VERSION"] = "ruby-1.9.2-p290"
 
-default_run_options[:shell] = 'bash'
+#default_run_options[:shell] = 'bash'
 default_run_options[:pty] = true
 
 namespace :deploy do
@@ -83,7 +87,7 @@ namespace :deploy do
   end
 
   task :finalize_update, :except => { :no_release => true } do
-    run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
+    run "chmod -R +w #{latest_release}" if fetch(:group_writable, true)
 
     # mkdir -p is making sure that the directories are there for some SCM's that don't
     # save empty folders
@@ -93,8 +97,11 @@ namespace :deploy do
       mkdir -p #{latest_release}/tmp &&
       ln -s #{shared_path}/log #{latest_release}/log &&
       ln -s #{shared_path}/system #{latest_release}/public/system &&
-      ln -s #{shared_path}/pids #{latest_release}/tmp/pids #&&
+      ln -s #{shared_path}/pids #{latest_release}/tmp/pids &&
       #ln -sf #{shared_path}/database.yml #{latest_release}/config/database.yml
+      #{try_sudo} ln -nf #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application} &&
+      #{try_sudo} ln -nf 
+      #TODO: ln to unicorn init
     CMD
 
     if fetch(:normalize_asset_timestamps, true)

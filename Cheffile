@@ -2,10 +2,12 @@ site "http://community.opscode.com/api/v1"
 
 cookbook 'build-essential'
 cookbook 'git'
-cookbook 'ruby_build',
-  :git => 'git://github.com/fnichol/chef-ruby_build.git', :ref => 'v0.6.2'
-cookbook 'rbenv',
-  :git => 'https://github.com/fnichol/chef-rbenv', :ref => '7d9b66f20d6edb786720b22919fd53e698fce12b'
+#cookbook 'ruby_build',
+#  :git => 'git://github.com/fnichol/chef-ruby_build.git', :ref => 'v0.8.0'
+cookbook 'rvm',
+  git: 'git://github.com/fnichol/chef-rvm.git'
+#cookbook 'rbenv',
+#  :git => 'git://github.com/fnichol/chef-rbenv.git', :ref => 'v0.7.2'
 cookbook 'apt',
   :git => 'https://github.com/opscode-cookbooks/apt'
 cookbook 'unicorn'

@@ -1,4 +1,5 @@
-app_path          = "/var/www/sinatra_template"
+application       = "sinatra_template"
+app_path          = "/var/www/#{application}"
  
 environment 	  = ENV['RACK_ENV'] || 'development'
 isDevelopment     = environment == 'development'
@@ -11,7 +12,7 @@ stderr_path       "#{app_path}/shared/log/unicorn.log"
 stdout_path       "#{app_path}/shared/log/unicorn.log"
 end
 
-listen            "unix:/tmp/unicorn.sock" , :backlog => 512
+listen            "unix:/tmp/#{application}.unicorn.sock" , :backlog => 512
 worker_processes  4
 timeout           120
 preload_app       true

@@ -81,10 +81,38 @@ Vagrant::Config.run do |config|
       chef.add_recipe "runit" 
       chef.add_recipe "nginx" 
       chef.add_recipe "unicorn" 
-      chef.add_recipe "ruby_build" 
-      chef.add_recipe "rbenv" 
-  #   # You may also specify custom JSON attributes:
-  #   chef.json = { :mysql_password => "foo" }
+      chef.add_recipe "rvm::vagrant"
+      chef.add_recipe "rvm::system"
+#      chef.add_recipe "ruby_build" 
+#      chef.add_recipe "rbenv"
+ 
+chef.json = {     
+        "rvm" => {
+          "rubies"  => ["1.9.2"],
+          "global_gems" => [
+              { 'name' => 'bundler' }
+          ]
+        }
+      }
+ 
+#      chef.json = { 
+#	'rbenv' => {
+#    'user_installs' => [
+#      {
+#        'user'    => 'vagrant',
+#        'rubies'  => ['1.9.3-p327'],
+#        'global'  => '1.9.3-p327',
+#        'gems'    => {
+#          '1.9.3-p327' => [
+#            { 'name'    => 'bundler' },
+#            { 'name'    => 'rake' }
+#          ]
+#        }
+#      }
+#    ]
+#  }
+	       
+	 #}
    end
 
   # Enable provisioning with chef server, specifying the chef server URL,
