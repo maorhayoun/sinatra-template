@@ -30,7 +30,7 @@ Vagrant::Config.run do |config|
  
       chef.json = {     
         "rvm" => {
-          "rubies"  => ["1.9.2"],
+          "rubies"  => ["1.9.3"],
           "global_gems" => [
               { 'name' => 'bundler' }
           ]
